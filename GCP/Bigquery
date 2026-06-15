@@ -1,0 +1,226 @@
+#!/bin/bash
+
+###############################################################################
+# BIGQUERY (bq) COMMON COMMANDS - CLOUD SHELL CHEAT SHEET
+###############################################################################
+
+#--------------------------------------------------------------------------
+# Set variables (replace with your values)
+#--------------------------------------------------------------------------
+PROJECT_ID="my-project-id"
+DATASET="my_dataset"
+TABLE="my_table"
+BUCKET="my-bucket"
+
+#--------------------------------------------------------------------------
+# GCP PROJECT COMMANDS
+#--------------------------------------------------------------------------
+
+# Show current project
+gcloud config get-value project
+
+# Set active project
+gcloud config set project $PROJECT_ID
+
+#--------------------------------------------------------------------------
+# DATASET COMMANDS
+#--------------------------------------------------------------------------
+
+# List datasets in current project
+bq ls
+
+# List datasets in specific project
+bq ls $PROJECT_ID
+
+# Show dataset details
+bq show $PROJECT_ID:$DATASET
+
+# Create dataset
+bq mk $DATASET
+
+# Delete dataset recursively
+bq rm -r -f $DATASET
+
+#--------------------------------------------------------------------------
+# TABLE COMMANDS
+#--------------------------------------------------------------------------
+
+# List tables in dataset
+bq ls $PROJECT_ID:$DATASET
+
+# Show table metadata
+bq show $PROJECT_ID:$DATASET.$TABLE
+
+# Show table schema
+bq show --schema --format=prettyjson $PROJECT_ID:$DATASET.$TABLE
+
+# Preview first 100 rows
+bq head $PROJECT_ID:$DATASET.$TABLE
+
+# Preview first 20 rows
+bq head -n 20 $PROJECT_ID:$DATASET.$TABLE
+
+# Create table with schema
+bq mk \
+--table \
+$DATASET.new_table \
+id:INTEGER,name:STRING,salary:FLOAT
+
+# Delete table
+bq rm -f $DATASET.$TABLE
+
+# Copy table
+bq cp \
+$DATASET.source_table \
+$DATASET.target_table
+
+#--------------------------------------------------------------------------
+# QUERY COMMANDS
+#--------------------------------------------------------------------------
+
+# Run query
+bq query --use_legacy_sql=false \
+'SELECT * FROM `my-project-id.my_dataset.my_table` LIMIT 10'
+
+# Count rows
+bq query --use_legacy_sql=false \
+'SELECT COUNT(*) AS ROW_COUNT
+ FROM `my-project-id.my_dataset.my_table`'
+
+# Get distinct values
+bq query --use_legacy_sql=false \
+'SELECT DISTINCT department
+ FROM `my-project-id.my_dataset.my_table`'
+
+# Check duplicates
+bq query --use_legacy_sql=false \
+'SELECT id, COUNT(*)
+ FROM `my-project-id.my_dataset.my_table`
+ GROUP BY id
+ HAVING COUNT(*) > 1'
+
+#--------------------------------------------------------------------------
+# VALIDATION COMMANDS
+#--------------------------------------------------------------------------
+
+# Count columns
+bq show --schema --format=prettyjson \
+$PROJECT_ID:$DATASET.$TABLE | jq length
+
+# Count rows (CSV output)
+bq query --nouse_legacy_sql --format=csv \
+"SELECT COUNT(*) FROM \`${PROJECT_ID}.${DATASET}.${TABLE}\`"
+
+# Show schema in readable format
+bq show --schema $PROJECT_ID:$DATASET.$TABLE
+
+#--------------------------------------------------------------------------
+# INFORMATION_SCHEMA QUERIES
+#--------------------------------------------------------------------------
+
+# Get all columns
+bq query --use_legacy_sql=false \
+"
+SELECT column_name,data_type
+FROM \`${PROJECT_ID}.${DATASET}.INFORMATION_SCHEMA.COLUMNS\`
+WHERE table_name='$TABLE'
+ORDER BY ordinal_position
+"
+
+# Count columns using INFORMATION_SCHEMA
+bq query --use_legacy_sql=false \
+"
+SELECT COUNT(*) AS COLUMN_COUNT
+FROM \`${PROJECT_ID}.${DATASET}.INFORMATION_SCHEMA.COLUMNS\`
+WHERE table_name='$TABLE'
+"
+
+# List all tables
+bq query --use_legacy_sql=false \
+"
+SELECT table_name
+FROM \`${PROJECT_ID}.${DATASET}.INFORMATION_SCHEMA.TABLES\`
+"
+
+#--------------------------------------------------------------------------
+# LOAD DATA COMMANDS
+#--------------------------------------------------------------------------
+
+# Load CSV from GCS
+bq load \
+--source_format=CSV \
+$DATASET.$TABLE \
+gs://$BUCKET/input.csv
+
+# Load CSV and skip header row
+bq load \
+--skip_leading_rows=1 \
+--source_format=CSV \
+$DATASET.$TABLE \
+gs://$BUCKET/input.csv
+
+#--------------------------------------------------------------------------
+# EXPORT COMMANDS
+#--------------------------------------------------------------------------
+
+# Export table to GCS
+bq extract \
+$DATASET.$TABLE \
+gs://$BUCKET/output.csv
+
+# Export as parquet
+bq extract \
+--destination_format=PARQUET \
+$DATASET.$TABLE \
+gs://$BUCKET/output.parquet
+
+#--------------------------------------------------------------------------
+# JOB COMMANDS
+#--------------------------------------------------------------------------
+
+# List recent jobs
+bq ls -j
+
+# Show job details
+bq show -j JOB_ID
+
+#--------------------------------------------------------------------------
+# STORAGE SIZE & METADATA
+#--------------------------------------------------------------------------
+
+# Get table metadata in JSON
+bq show --format=prettyjson \
+$PROJECT_ID:$DATASET.$TABLE
+
+# Get table size information
+bq query --use_legacy_sql=false \
+"
+SELECT
+  table_name,
+  row_count,
+  size_bytes
+FROM \`${PROJECT_ID}.${DATASET}.__TABLES__\`
+"
+
+#--------------------------------------------------------------------------
+# QUICK VALIDATION (MOST USED BY DATA ENGINEERS)
+#--------------------------------------------------------------------------
+
+# Row count
+bq query --use_legacy_sql=false \
+"SELECT COUNT(*) AS ROW_COUNT
+ FROM \`${PROJECT_ID}.${DATASET}.${TABLE}\`"
+
+# Column count
+bq show --schema --format=prettyjson \
+$PROJECT_ID:$DATASET.$TABLE | jq length
+
+# Sample data
+bq head -n 10 $PROJECT_ID:$DATASET.$TABLE
+
+# Schema
+bq show --schema $PROJECT_ID:$DATASET.$TABLE
+
+###############################################################################
+# END
+###############################################################################
