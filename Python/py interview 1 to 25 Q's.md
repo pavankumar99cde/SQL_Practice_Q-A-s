@@ -1,20 +1,17 @@
 # Python Coding Interview Questions - Multiple Solutions
 
-
-# Interview Tips
-
-### Data Engineer Specific (Most Important)             ### Most Frequently Asked (Top 10)
-
-1. Large CSV Processing                                  1. Reverse String
-2. JSON Flattening                                       2. Palindrome Check
-3. Duplicate Detection                                   3. Fibonacci Series
-4. File Comparison                                       4. Anagram Check
-5. Group By Aggregations                                 5. First Non-Repeating Character
-6. API Retry Logic                                       6. Move Zeros to End
-7. Batch Processing                                      7. Kth Largest Element
-8. Producer Consumer Pattern                             8. Balanced Parentheses
-9. Top Frequent Words                                    9. Longest Substring Without Repeating Characters
-10. Memory-Efficient Deduplication                       10. Binary Search
+| **Data Engineer Specific (Most Important)** | **Most Frequently Asked (Top 10)**                |
+| ------------------------------------------- | ------------------------------------------------- |
+| 1. Large CSV Processing                     | 1. Reverse String                                 |
+| 2. JSON Flattening                          | 2. Palindrome Check                               |
+| 3. Duplicate Detection                      | 3. Fibonacci Series                               |
+| 4. File Comparison                          | 4. Anagram Check                                  |
+| 5. Group By Aggregations                    | 5. First Non-Repeating Character                  |
+| 6. API Retry Logic                          | 6. Move Zeros to End                              |
+| 7. Batch Processing                         | 7. Kth Largest Element                            |
+| 8. Producer Consumer Pattern                | 8. Balanced Parentheses                           |
+| 9. Top Frequent Words                       | 9. Longest Substring Without Repeating Characters |
+| 10. Memory-Efficient Deduplication          | 10. Binary Search                                 |
 
 ### DSA Questions Frequently Asked by Product Companies
 
